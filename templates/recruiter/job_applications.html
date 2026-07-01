@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Applications – {{ job.title }}{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-1">{{ job.title }}</h4>
+        <p class="text-muted mb-0">
+          <i class="bi bi-building me-1"></i>{{ job.company.company_name }}
+          <span class="mx-2">·</span>
+          <i class="bi bi-people me-1"></i>{{ applications|length }} Applicant(s)
+        </p>
+      </div>
+      <a href="{{ url_for('recruiter.my_jobs') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Jobs</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a href="{{ url_for('recruiter.job_applications', jid=job.job_id) }}" class="btn btn-sm {{ 'btn-primary' if not status_filter else 'btn-outline-secondary' }}">All ({{ applications|length }})</a>
+      {% for s in ['Applied','Under Review','Shortlisted','Selected','Rejected'] %}
+      <a href="?status={{ s }}" class="btn btn-sm {{ 'btn-primary' if status_filter==s else 'btn-outline-secondary' }}">{{ s }}</a>
+      {% endfor %}
+    </div>
+
+    {% if applications %}
+    <div class="row g-3">
+      {% for a in applications %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="row align-items-start">
+              <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm me-3">{{ a.applicant.full_name[0].upper() }}</div>
+                  <div>
+                    <h6 class="fw-bold mb-0">{{ a.applicant.full_name }}</h6>
+                    <p class="text-muted small mb-0">{{ a.applicant.email }}</p>
+                    {% if a.applicant.phone %}<p class="text-muted small mb-0"><i class="bi bi-phone me-1"></i>{{ a.applicant.phone }}</p>{% endif %}
+                    {% if a.applicant.experience %}<p class="text-muted small mb-0"><i class="bi bi-briefcase me-1"></i>{{ a.applicant.experience }}</p>{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                {% if a.applicant.skills %}
+                <div class="mb-2">
+                  {% for sk in a.applicant.skills.split(',')[:5] %}
+                  <span class="badge bg-light text-dark border me-1 mb-1 small">{{ sk.strip() }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted"><i class="bi bi-calendar me-1"></i>Applied {{ a.applied_date.strftime('%b %d, %Y') }}</small>
+                {% if a.applicant.resumes %}
+                <div class="mt-2">
+                  <a href="{{ url_for('static', filename=a.applicant.resumes[0].file_path) }}" class="btn btn-sm btn-outline-danger" target="_blank">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>View Resume
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-md-4">
+                <form method="POST" action="{{ url_for('recruiter.update_status', aid=a.application_id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <label class="form-label small fw-semibold">Update Status</label>
+                  <select name="status" class="form-select form-select-sm mb-2">
+                    {% for s in ['Applied','Under Review','Shortlisted','Rejected','Selected'] %}
+                    <option {{ 'selected' if a.status==s }}>{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="text" name="notes" class="form-control form-control-sm mb-2"
+                         value="{{ a.recruiter_notes or '' }}" placeholder="Recruiter notes (optional)">
+                  <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-check-circle me-1"></i>Update
+                  </button>
+                </form>
+              </div>
+            </div>
+            {% if a.cover_letter %}
+            <div class="mt-3 p-3 bg-light rounded">
+              <small class="fw-semibold text-muted d-block mb-1">Cover Letter:</small>
+              <p class="text-muted small mb-0">{{ a.cover_letter[:300] }}{% if a.cover_letter|length>300 %}…{% endif %}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-inbox text-muted" style="font-size:4rem"></i>
+      <h5 class="text-muted mt-3">No applications yet</h5>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

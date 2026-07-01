@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}My Jobs – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold mb-0"><i class="bi bi-briefcase me-2 text-primary"></i>My Job Postings</h4>
+      <a href="{{ url_for('recruiter.post_job') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Post New Job</a>
+    </div>
+
+    {% if jobs.items %}
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr><th>Title</th><th>Type</th><th>Location</th><th>Posted</th><th>Applications</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for j in jobs.items %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ j.title }}</div>
+                <small class="text-muted">{{ j.experience_required }}</small>
+              </td>
+              <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ j.job_type }}</span></td>
+              <td class="text-muted small">{{ j.location or '–' }}</td>
+              <td class="text-muted small">{{ j.posted_date.strftime('%b %d, %Y') }}</td>
+              <td>
+                <a href="{{ url_for('recruiter.job_applications', jid=j.job_id) }}" class="text-primary fw-bold">
+                  {{ j.apps_count() }} <i class="bi bi-arrow-right"></i>
+                </a>
+              </td>
+              <td>
+                {% if j.is_active %}
+                <span class="badge bg-success">Active</span>
+                {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('recruiter.edit_job', jid=j.job_id) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <form method="POST" action="{{ url_for('recruiter.toggle_job', jid=j.job_id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-{{ 'secondary' if j.is_active else 'success' }}" title="{{ 'Pause' if j.is_active else 'Activate' }}">
+                      <i class="bi bi-{{ 'pause' if j.is_active else 'play' }}"></i>
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ url_for('recruiter.delete_job', jid=j.job_id) }}" onsubmit="return confirm('Delete this job?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if jobs.pages > 1 %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if jobs.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ jobs.prev_num }}">Prev</a></li>{% endif %}
+        {% for p in jobs.iter_pages() %}<li class="page-item {{ 'active' if p==jobs.page }}"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>{% endfor %}
+        {% if jobs.has_next %}<li class="page-item"><a class="page-link" href="?page={{ jobs.next_num }}">Next</a></li>{% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-briefcase text-muted" style="font-size:4rem"></i>
+      <h5 class="text-muted mt-3">No jobs posted yet</h5>
+      <a href="{{ url_for('recruiter.post_job') }}" class="btn btn-primary mt-2">Post Your First Job</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

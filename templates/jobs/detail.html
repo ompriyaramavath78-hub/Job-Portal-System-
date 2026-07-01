@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Main Job Details -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-start gap-3 mb-4">
+              <div class="avatar-company-lg flex-shrink-0">{{ job.company.company_name[0].upper() }}</div>
+              <div class="flex-grow-1">
+                <h3 class="fw-bold mb-1">{{ job.title }}</h3>
+                <p class="text-muted mb-2 fs-5">{{ job.company.company_name }}</p>
+                <div class="d-flex flex-wrap gap-3 text-muted small">
+                  {% if job.location %}
+                  <span><i class="bi bi-geo-alt me-1 text-danger"></i>{{ job.location }}</span>
+                  {% endif %}
+                  <span><i class="bi bi-briefcase me-1 text-primary"></i>{{ job.job_type }}</span>
+                  {% if job.experience_required %}
+                  <span><i class="bi bi-award me-1 text-warning"></i>{{ job.experience_required }}</span>
+                  {% endif %}
+                  <span><i class="bi bi-calendar me-1 text-success"></i>Posted {{ job.posted_date.strftime('%B %d, %Y') }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">{{ job.job_type }}</span>
+              {% if job.experience_required %}
+              <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">{{ job.experience_required }}</span>
+              {% endif %}
+              <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">{{ job.salary_display() }}</span>
+              {% if job.vacancies %}
+              <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">{{ job.vacancies }} Opening(s)</span>
+              {% endif %}
+            </div>
+
+            <hr>
+
+            <h5 class="fw-bold mb-3">Job Description</h5>
+            <div class="job-description text-muted" style="line-height:1.8; white-space:pre-line;">{{ job.description }}</div>
+
+            {% if job.skills_required %}
+            <hr>
+            <h5 class="fw-bold mb-3">Required Skills</h5>
+            <div class="d-flex flex-wrap gap-2">
+              {% for sk in job.skills_required.split(',') %}
+              <span class="badge bg-light text-dark border px-3 py-2">{{ sk.strip() }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Similar Jobs -->
+        {% if similar %}
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 py-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-grid me-2 text-primary"></i>More Jobs from {{ job.company.company_name }}</h6>
+          </div>
+          <div class="card-body p-0">
+            {% for sj in similar %}
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold small">
+                  <a href="{{ url_for('jobs.job_detail', jid=sj.job_id) }}" class="text-dark text-decoration-none">{{ sj.title }}</a>
+                </div>
+                <div class="text-muted" style="font-size:.75rem">{{ sj.job_type }}{% if sj.location %} · {{ sj.location }}{% endif %}</div>
+              </div>
+              <a href="{{ url_for('jobs.job_detail', jid=sj.job_id) }}" class="btn btn-sm btn-outline-primary">View</a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Apply Card -->
+        <div class="card border-0 shadow-sm mb-4 sticky-top" style="top:80px">
+          <div class="card-body p-4 text-center">
+            <h5 class="fw-bold mb-1">{{ job.salary_display() }}</h5>
+            <p class="text-muted small mb-3">per annum</p>
+
+            {% if current_user.is_authenticated and current_user.is_candidate() %}
+              {% if already_applied %}
+              <button class="btn btn-success w-100 fw-bold mb-2" disabled>
+                <i class="bi bi-check-circle me-2"></i>Already Applied
+              </button>
+              {% else %}
+              {% if job.apply_url %}
+              <a href="{{ url_for('applications.apply', jid=job.job_id) }}" class="btn btn-primary w-100 fw-bold mb-2">
+                <i class="bi bi-box-arrow-up-right me-2"></i>Apply on Official Portal
+              </a>
+              <small class="d-block text-center text-muted">Opens in new tab</small>
+              {% else %}
+              <a href="{{ url_for('applications.apply', jid=job.job_id) }}" class="btn btn-primary w-100 fw-bold mb-2">
+                <i class="bi bi-send me-2"></i>Apply Now
+              </a>
+              {% endif %}
+              {% endif %}
+            {% elif current_user.is_authenticated and current_user.is_recruiter() %}
+            <p class="text-muted small">Recruiters cannot apply for jobs.</p>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary w-100 fw-bold mb-2">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login to Apply
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary w-100 btn-sm">Create Account</a>
+            {% endif %}
+
+            <hr class="my-3">
+            <div class="text-start">
+              <div class="d-flex justify-content-between text-muted small mb-2">
+                <span>Total Applicants</span>
+                <strong class="text-dark">{{ job.apps_count() }}</strong>
+              </div>
+              {% if job.vacancies %}
+              <div class="d-flex justify-content-between text-muted small mb-2">
+                <span>Openings</span>
+                <strong class="text-dark">{{ job.vacancies }}</strong>
+              </div>
+              {% endif %}
+              <div class="d-flex justify-content-between text-muted small">
+                <span>Posted On</span>
+                <strong class="text-dark">{{ job.posted_date.strftime('%b %d, %Y') }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i>About the Company</h6>
+            <h6 class="fw-semibold">{{ job.company.company_name }}</h6>
+            {% if job.company.industry %}<p class="text-muted small mb-1"><i class="bi bi-tag me-1"></i>{{ job.company.industry }}</p>{% endif %}
+            {% if job.company.location %}<p class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>{{ job.company.location }}</p>{% endif %}
+            {% if job.company.company_size %}<p class="text-muted small mb-1"><i class="bi bi-people me-1"></i>{{ job.company.company_size }} employees</p>{% endif %}
+            {% if job.company.founded_year %}<p class="text-muted small mb-1"><i class="bi bi-calendar me-1"></i>Founded {{ job.company.founded_year }}</p>{% endif %}
+            {% if job.company.website %}
+            <a href="{{ job.company.website }}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2">
+              <i class="bi bi-globe me-1"></i>Visit Website
+            </a>
+            {% endif %}
+            {% if job.company.description %}
+            <hr>
+            <p class="text-muted small mb-0">{{ job.company.description[:200] }}{% if job.company.description|length > 200 %}…{% endif %}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

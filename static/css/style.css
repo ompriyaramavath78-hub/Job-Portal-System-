@@ -1,0 +1,177 @@
+/* ============================================================
+   JobPortal System – Custom Stylesheet
+   Tech: Flask + MySQL + Bootstrap 5
+   ============================================================ */
+
+/* ---------- Google Font + Root Variables ---------- */
+:root {
+  --primary:   #0d6efd;
+  --success:   #198754;
+  --warning:   #ffc107;
+  --danger:    #dc3545;
+  --info:      #0dcaf0;
+  --dark:      #212529;
+  --light:     #f8f9fa;
+  --nav-bg:    #1a1a2e;
+  --hero-bg:   linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  --footer-bg: #1a1a2e;
+  --card-radius: 12px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  background: #f5f6fa;
+}
+
+/* ---------- Navbar ---------- */
+#mainNav {
+  background: var(--nav-bg) !important;
+  padding: .75rem 0;
+}
+#mainNav .navbar-brand { font-size: 1.4rem; letter-spacing: -.5px; }
+#mainNav .nav-link { color: rgba(255,255,255,.8) !important; font-size: .9rem; transition: color .2s; }
+#mainNav .nav-link:hover { color: var(--warning) !important; }
+.avatar-sm {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .9rem;
+}
+
+/* ---------- Hero ---------- */
+.hero-section {
+  background: var(--hero-bg);
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.hero-section::after {
+  content: '';
+  position: absolute; bottom: -2px; left: 0; right: 0; height: 60px;
+  background: #f5f6fa;
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+.hero-icon {
+  font-size: 11rem;
+  color: rgba(255, 193, 7, .15);
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-18px); }
+}
+.hero-search-box { background: #fff; }
+
+/* ---------- Stats ---------- */
+.stat-item h3 { font-size: 1.8rem; }
+
+/* ---------- Cards ---------- */
+.card { border-radius: var(--card-radius) !important; }
+
+.job-card { transition: transform .2s, box-shadow .2s; }
+.job-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md) !important; }
+
+/* ---------- Company Avatars ---------- */
+.avatar-company {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #0056cc);
+  color: #fff; font-weight: 700; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.avatar-company-lg {
+  width: 60px; height: 60px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), #0056cc);
+  color: #fff; font-weight: 700; font-size: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---------- Applied Ribbon ---------- */
+.applied-ribbon {
+  position: absolute; top: 14px; right: -8px;
+  background: var(--success); color: #fff;
+  font-size: .7rem; font-weight: 700; padding: 3px 14px;
+  border-radius: 3px 0 0 3px;
+  box-shadow: -2px 2px 4px rgba(0,0,0,.2);
+  z-index: 1;
+}
+
+/* ---------- Auth Pages ---------- */
+.auth-bg {
+  background: linear-gradient(135deg, #e8f4fd, #f0f4ff);
+  min-height: calc(100vh - 70px);
+}
+.auth-bg .card { border-radius: 18px !important; }
+
+/* ---------- Role Tabs (Register) ---------- */
+.role-tab {
+  cursor: pointer;
+  transition: all .2s;
+  border-color: #dee2e6 !important;
+}
+.role-tab:hover { border-color: var(--primary) !important; background: #f0f7ff; }
+.role-tab.active { border-color: var(--primary) !important; background: #e8f0fe; box-shadow: 0 0 0 2px rgba(13,110,253,.25); }
+
+/* ---------- Dashboard ---------- */
+.dashboard-page { background: #f5f6fa; }
+
+/* ---------- Upload Zone ---------- */
+.upload-zone {
+  border: 2px dashed #ced4da;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: #fafafa;
+}
+.upload-zone:hover { border-color: var(--success); background: #f0fff4; }
+
+/* ---------- Feature Cards ---------- */
+.feature-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- CTA Section ---------- */
+.cta-section {
+  background: linear-gradient(135deg, #0d6efd, #0056cc);
+}
+
+/* ---------- Footer ---------- */
+.footer { background: var(--footer-bg); }
+.footer-link { color: rgba(255,255,255,.6); text-decoration: none; font-size: .875rem; display: block; margin-bottom: .3rem; }
+.footer-link:hover { color: var(--warning); }
+
+/* ---------- Badges ---------- */
+.badge { font-weight: 500; }
+
+/* ---------- Table ---------- */
+.table th { font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; color: #6c757d; }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+/* ---------- Progress Bar ---------- */
+.progress { border-radius: 10px; }
+.progress-bar { border-radius: 10px; }
+
+/* ---------- Pagination ---------- */
+.page-link { color: var(--primary); }
+.page-item.active .page-link { background: var(--primary); border-color: var(--primary); }
+
+/* ---------- Alert ---------- */
+.alert { border-radius: 10px; border: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .hero-section { padding: 2.5rem 0; }
+  .hero-section h1 { font-size: 1.8rem; }
+  .stat-item h3 { font-size: 1.4rem; }
+}

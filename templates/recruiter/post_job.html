@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Job' if job else 'Post Job' }} – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-{{ 'pencil' if job else 'plus-circle' }} me-2"></i>{{ 'Edit Job' if job else 'Post New Job' }}</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST">
+              {{ form.hidden_tag() }}
+              <div class="row g-3">
+                <div class="col-12">
+                  {{ form.title.label(class="form-label fw-semibold small") }}
+                  {{ form.title(class="form-control"~(" is-invalid" if form.title.errors else ""), placeholder="e.g., Senior Python Developer") }}
+                  {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  {{ form.job_type.label(class="form-label fw-semibold small") }}
+                  {{ form.job_type(class="form-select") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.experience_required.label(class="form-label fw-semibold small") }}
+                  {{ form.experience_required(class="form-select") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.location.label(class="form-label fw-semibold small") }}
+                  {{ form.location(class="form-control", placeholder="Hyderabad, Telangana") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.vacancies.label(class="form-label fw-semibold small") }}
+                  {{ form.vacancies(class="form-control", placeholder="1") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.salary_min.label(class="form-label fw-semibold small") }}
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    {{ form.salary_min(class="form-control", placeholder="5") }}
+                    <span class="input-group-text">LPA</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  {{ form.salary_max.label(class="form-label fw-semibold small") }}
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    {{ form.salary_max(class="form-control", placeholder="10") }}
+                    <span class="input-group-text">LPA</span>
+                  </div>
+                </div>
+                <div class="col-12">
+                  {{ form.skills_required.label(class="form-label fw-semibold small") }}
+                  {{ form.skills_required(class="form-control", placeholder="Python, Flask, MySQL, REST API") }}
+                  <div class="form-text">Comma-separated skills</div>
+                </div>
+                <div class="col-12">
+                  {{ form.description.label(class="form-label fw-semibold small") }}
+                  {{ form.description(class="form-control"~(" is-invalid" if form.description.errors else ""), rows=7, placeholder="Describe the role, responsibilities, requirements and benefits...") }}
+                  {% for e in form.description.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                </div>
+              </div>
+              <div class="mt-4 d-flex gap-2">
+                {{ form.submit(class="btn btn-primary px-4") }}
+                <a href="{{ url_for('recruiter.my_jobs') }}" class="btn btn-outline-secondary">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

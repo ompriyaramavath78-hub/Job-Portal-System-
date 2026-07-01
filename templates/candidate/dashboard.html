@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container-fluid px-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-1">Welcome, {{ current_user.full_name.split()[0] }}! 👋</h4>
+        <p class="text-muted mb-0">Here's your job search overview</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Browse Jobs</a>
+        <a href="{{ url_for('candidate.upload_resume') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-upload me-1"></i>Upload Resume</a>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="row g-3 mb-4">
+      {% for label, val, color, icon in [
+        ('Total Applied', stats.total, 'primary', 'send'),
+        ('Under Review', stats.under_review, 'warning', 'eye'),
+        ('Shortlisted', stats.shortlisted, 'info', 'list-check'),
+        ('Selected', stats.selected, 'success', 'trophy'),
+        ('Rejected', stats.rejected, 'danger', 'x-circle'),
+        ('Resumes', resumes|length, 'secondary', 'file-person')
+      ] %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+          <div class="mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center bg-{{ color }} bg-opacity-10" style="width:44px;height:44px">
+            <i class="bi bi-{{ icon }} text-{{ color }}"></i>
+          </div>
+          <h3 class="fw-bold text-{{ color }} mb-0">{{ val }}</h3>
+          <small class="text-muted">{{ label }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        {% if stats.total > 0 %}
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 py-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-primary"></i>Application Status</h6>
+          </div>
+          <div class="card-body"><canvas id="appChart" height="100"></canvas></div>
+        </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+            <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Applications</h6>
+            <a href="{{ url_for('candidate.my_applications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_apps %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light"><tr><th>Job</th><th>Company</th><th>Date</th><th>Status</th></tr></thead>
+                <tbody>
+                  {% for a in recent_apps %}
+                  <tr>
+                    <td class="fw-semibold"><a href="{{ url_for('jobs.job_detail', jid=a.job.job_id) }}" class="text-dark text-decoration-none">{{ a.job.title }}</a></td>
+                    <td class="text-muted small">{{ a.job.company.company_name }}</td>
+                    <td class="text-muted small">{{ a.applied_date.strftime('%b %d') }}</td>
+                    <td><span class="badge bg-{{ a.badge_color() }} bg-opacity-15 text-{{ a.badge_color() }} border border-{{ a.badge_color() }}">{{ a.status }}</span></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+              <i class="bi bi-inbox text-muted fs-1"></i>
+              <p class="text-muted mt-2 mb-0">No applications yet.</p>
+              <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-primary btn-sm mt-2">Browse Jobs</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <!-- Profile -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-person-check me-2 text-primary"></i>Profile Completion</h6>
+            {% set pct = current_user.profile_pct() %}
+            <div class="d-flex justify-content-between mb-2">
+              <span class="small text-muted">{{ pct }}% complete</span>
+              <span class="small fw-bold text-primary">{{ pct }}%</span>
+            </div>
+            <div class="progress mb-3" style="height:8px">
+              <div class="progress-bar bg-primary" style="width:{{ pct }}%"></div>
+            </div>
+            {% if pct < 100 %}
+            <a href="{{ url_for('candidate.profile') }}" class="btn btn-sm btn-outline-primary w-100">
+              <i class="bi bi-pencil me-1"></i>Complete Profile
+            </a>
+            {% else %}
+            <p class="text-success text-center small mb-0"><i class="bi bi-check-circle me-1"></i>Profile 100% complete!</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Resumes -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-text me-2 text-success"></i>My Resumes</h6>
+            {% for r in resumes[:2] %}
+            <div class="d-flex align-items-center mb-2 p-2 bg-light rounded">
+              <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="small fw-semibold text-truncate">{{ r.file_name }}</div>
+                <div class="text-muted" style="font-size:.72rem">{{ r.upload_date.strftime('%b %d, %Y') }}</div>
+              </div>
+            </div>
+            {% else %}
+            <p class="text-muted small">No resume yet.</p>
+            {% endfor %}
+            <a href="{{ url_for('candidate.upload_resume') }}" class="btn btn-sm btn-outline-success w-100 mt-1">
+              <i class="bi bi-plus-circle me-1"></i>Upload Resume
+            </a>
+          </div>
+        </div>
+
+        <!-- Recommended Jobs -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 py-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-star me-2 text-warning"></i>Recommended Jobs</h6>
+          </div>
+          <div class="card-body p-0">
+            {% for j in recent_jobs %}
+            <div class="p-3 border-bottom">
+              <div class="fw-semibold small">
+                <a href="{{ url_for('jobs.job_detail', jid=j.job_id) }}" class="text-dark text-decoration-none">{{ j.title }}</a>
+              </div>
+              <div class="text-muted small">{{ j.company.company_name }}</div>
+              <div class="mt-1">
+                <span class="badge bg-primary bg-opacity-10 text-primary small">{{ j.job_type }}</span>
+                {% if j.location %}<span class="text-muted ms-1" style="font-size:.72rem"><i class="bi bi-geo-alt"></i> {{ j.location }}</span>{% endif %}
+              </div>
+            </div>
+            {% else %}
+            <div class="p-3 text-muted small text-center">No new jobs</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+{% if stats.total > 0 %}
+<script>
+new Chart(document.getElementById('appChart'),{
+  type:'doughnut',
+  data:{
+    labels:['Applied','Under Review','Shortlisted','Selected','Rejected'],
+    datasets:[{data:[{{ stats.applied }},{{ stats.under_review }},{{ stats.shortlisted }},{{ stats.selected }},{{ stats.rejected }}],
+    backgroundColor:['#0d6efd','#ffc107','#0dcaf0','#198754','#dc3545'],borderWidth:2,borderColor:'#fff'}]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+</script>
+{% endif %}
+{% endblock %}

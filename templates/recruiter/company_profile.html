@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Company Profile – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-building me-2"></i>{{ 'Edit' if company else 'Create' }} Company Profile</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST">
+              {{ form.hidden_tag() }}
+              <div class="row g-3">
+                <div class="col-md-6">
+                  {{ form.company_name.label(class="form-label fw-semibold small") }}
+                  {{ form.company_name(class="form-control"~(" is-invalid" if form.company_name.errors else ""), placeholder="e.g., TechCorp India Pvt Ltd") }}
+                  {% for e in form.company_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                  {{ form.industry.label(class="form-label fw-semibold small") }}
+                  {{ form.industry(class="form-control", placeholder="e.g., Information Technology") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.location.label(class="form-label fw-semibold small") }}
+                  {{ form.location(class="form-control", placeholder="Hyderabad, India") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.website.label(class="form-label fw-semibold small") }}
+                  {{ form.website(class="form-control", placeholder="https://yourcompany.com") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.company_size.label(class="form-label fw-semibold small") }}
+                  {{ form.company_size(class="form-select") }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.founded_year.label(class="form-label fw-semibold small") }}
+                  {{ form.founded_year(class="form-control", placeholder="2010") }}
+                </div>
+                <div class="col-12">
+                  {{ form.description.label(class="form-label fw-semibold small") }}
+                  {{ form.description(class="form-control", rows=4, placeholder="Describe your company, culture and work environment...") }}
+                </div>
+              </div>
+              <div class="mt-4 d-flex gap-2">
+                {{ form.submit(class="btn btn-primary px-4") }}
+                <a href="{{ url_for('recruiter.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

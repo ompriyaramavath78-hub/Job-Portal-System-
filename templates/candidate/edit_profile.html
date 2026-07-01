@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile – JobPortal{% endblock %}
+{% block content %}
+<div class="py-4 bg-light min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Profile</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <!-- Profile Picture Section -->
+              <div class="mb-4 pb-4 border-bottom">
+                <h6 class="fw-bold mb-3"><i class="bi bi-image me-2 text-primary"></i>Profile Picture</h6>
+                <div class="row align-items-center">
+                  <div class="col-md-3 text-center mb-3 mb-md-0">
+                    {% if current_user.profile_picture %}
+                    <img src="{{ url_for('static', filename=current_user.profile_picture) }}" 
+                         alt="Profile Picture" class="rounded-circle" style="width:150px; height:150px; object-fit:cover; border:3px solid #e9ecef;">
+                    {% else %}
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                         style="width:150px; height:150px; background-color:#e9ecef; margin:0 auto;">
+                      <i class="bi bi-person-fill text-muted" style="font-size:4rem;"></i>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="col-md-9">
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold small">Upload New Picture</label>
+                      <input type="file" name="profile_picture" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                      <small class="text-muted d-block mt-2">Allowed: JPG, JPEG, PNG, WEBP (Max 10MB)</small>
+                    </div>
+                    {% if current_user.profile_picture %}
+                    <form method="POST" action="{{ url_for('candidate.delete_profile_picture') }}" class="d-inline" onsubmit="return confirm('Delete profile picture?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>Remove Picture
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Personal Details -->
+              <div class="mb-4 pb-4 border-bottom">
+                <h6 class="fw-bold mb-3"><i class="bi bi-person me-2 text-primary"></i>Personal Details</h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Full Name *</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name or '' }}" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Email</label>
+                    <input type="email" class="form-control bg-light" value="{{ current_user.email }}" readonly>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Phone</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+91 98765 43210">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Professional Title</label>
+                    <input type="text" name="professional_title" class="form-control" value="{{ current_user.professional_title or '' }}" placeholder="e.g., Senior Software Developer">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Date of Birth</label>
+                    <input type="date" name="date_of_birth" class="form-control" value="{{ current_user.date_of_birth.strftime('%Y-%m-%d') if current_user.date_of_birth else '' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Gender</label>
+                    <select name="gender" class="form-select">
+                      <option value="">Select</option>
+                      {% for g in ['Male', 'Female', 'Other'] %}
+                      <option value="{{ g }}" {{ 'selected' if current_user.gender == g }}>{{ g }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address Details -->
+              <div class="mb-4 pb-4 border-bottom">
+                <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Address</h6>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">Address</label>
+                    <textarea name="address" class="form-control" rows="2" placeholder="Street address">{{ current_user.address or '' }}</textarea>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">City</label>
+                    <input type="text" name="city" class="form-control" value="{{ current_user.city or '' }}" placeholder="e.g., Hyderabad">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">State</label>
+                    <input type="text" name="state" class="form-control" value="{{ current_user.state or '' }}" placeholder="e.g., Telangana">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Country</label>
+                    <input type="text" name="country" class="form-control" value="{{ current_user.country or '' }}" placeholder="e.g., India">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">PIN Code</label>
+                    <input type="text" name="pin_code" class="form-control" value="{{ current_user.pin_code or '' }}" placeholder="e.g., 500001">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Professional Details -->
+              <div class="mb-4 pb-4 border-bottom">
+                <h6 class="fw-bold mb-3"><i class="bi bi-briefcase me-2 text-primary"></i>Professional Details</h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Experience</label>
+                    <select name="experience" class="form-select">
+                      <option value="">Select</option>
+                      {% for e in ['Fresher', '0-1 Years', '1-2 Years', '2-3 Years', '3-5 Years', '5-7 Years', '7-10 Years', '10+ Years'] %}
+                      <option value="{{ e }}" {{ 'selected' if current_user.experience == e }}>{{ e }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Highest Qualification</label>
+                    <input type="text" name="qualification" class="form-control" value="{{ current_user.qualification or '' }}" placeholder="e.g., B.Tech (Computer Science)">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">College/University</label>
+                    <input type="text" name="college" class="form-control" value="{{ current_user.college or '' }}" placeholder="e.g., IIIT Hyderabad">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Current Company</label>
+                    <input type="text" name="current_company" class="form-control" value="{{ current_user.current_company or '' }}" placeholder="e.g., Google">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Current Salary</label>
+                    <input type="text" name="current_salary" class="form-control" value="{{ current_user.current_salary or '' }}" placeholder="e.g., 10 LPA">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Expected Salary</label>
+                    <input type="text" name="expected_salary" class="form-control" value="{{ current_user.expected_salary or '' }}" placeholder="e.g., 15 LPA">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Preferred Job Role</label>
+                    <input type="text" name="preferred_job_role" class="form-control" value="{{ current_user.preferred_job_role or '' }}" placeholder="e.g., Senior Developer">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Preferred Location</label>
+                    <input type="text" name="preferred_location" class="form-control" value="{{ current_user.preferred_location or '' }}" placeholder="e.g., Hyderabad, Bangalore">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">Skills <span class="text-muted">(comma-separated)</span></label>
+                    <textarea name="skills" class="form-control" rows="2" placeholder="Python, Flask, MySQL, Machine Learning, etc.">{{ current_user.skills or '' }}</textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">Bio</label>
+                    <textarea name="bio" class="form-control" rows="3" placeholder="Tell us about yourself...">{{ current_user.bio or '' }}</textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Social Links -->
+              <div class="mb-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-share me-2 text-primary"></i>Social Links</h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">LinkedIn URL</label>
+                    <input type="url" name="linkedin_url" class="form-control" value="{{ current_user.linkedin_url or '' }}" placeholder="https://linkedin.com/in/yourprofile">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">GitHub URL</label>
+                    <input type="url" name="github_url" class="form-control" value="{{ current_user.github_url or '' }}" placeholder="https://github.com/yourprofile">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Portfolio Website</label>
+                    <input type="url" name="portfolio_url" class="form-control" value="{{ current_user.portfolio_url or '' }}" placeholder="https://yourportfolio.com">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Buttons -->
+              <div class="d-flex gap-2 justify-content-between">
+                <a href="{{ url_for('candidate.profile') }}" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-lg me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary fw-bold">
+                  <i class="bi bi-check-lg me-1"></i>Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
